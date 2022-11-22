@@ -77,11 +77,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-s 192.168.68.145"
+            argument = "-s 192.168.68.115"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-r 192.168.68.145"
+            argument = "-r 192.168.68.115"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
