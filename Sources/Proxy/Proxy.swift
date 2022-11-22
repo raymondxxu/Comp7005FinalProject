@@ -19,8 +19,6 @@ public struct Proxy {
 
         let senderIp = argParser.senderIp
         let receiverIp = argParser.receiverIp
-        var fromFD: CInt = 0
-        var toFD: CInt = 0
         do {
             try socketManger.netWorkSnake(from: senderIp!, to: receiverIp!)
         } catch (let err ) {

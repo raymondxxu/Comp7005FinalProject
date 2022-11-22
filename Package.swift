@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "Proxy",
     dependencies: [
-        .package(url: "https://github.com/raymondxxu/Comp7005FinalProjectCommonLib", branch: "main"),
+        .package(url: "https://github.com/raymondxxu/Comp7005FinalProjectCommonLib", branch: "main")
     ],
     targets: [
         .executableTarget(
