@@ -31,12 +31,9 @@ public struct Proxy {
                     break
                 }
                 
-//                print("numberOfReceived: \(numberOfReceived) - numberOfDropped: \(numberOfDropped)")
-//                print("Drop rate: \(numberOfDropped / numberOfReceived * 100)%")
                 var askBuffer = [CChar](repeating: 0, count: bufferSize)
                 setsockopt(toFd, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout.size(ofValue: timeout)))
                 let askReadBytes = read(toFd, &askBuffer, bufferSize)
-                //print("received: \(String(cString: askBuffer))")
                 let askWriteBytes = write(fromFD, askBuffer, askReadBytes)
 //                print("writes: \(String(cString: askBuffer))")
                 

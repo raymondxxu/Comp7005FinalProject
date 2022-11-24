@@ -89,11 +89,25 @@ struct ContentView: View {
     @StateObject var vm = ViewModel(true)
     @StateObject var ackVm = ViewModel(false)
     
+    @State var receiveSYN = 0
+    @State var sendSYN = 0
+    @State var receivedACK = 0
+    @State var sendACK = 0
+    
     var body: some View {
         VStack {
             //MARK: SYN
             SocketStatusView(vm: vm)
             SocketStatusView(vm: ackVm)
+            HStack {
+                    Text("The number Of packets received from sender: \(receiveSYN)\nThe number Of packets sent to receiver: \(sendSYN)").foregroundColor(.green)
+                        .multilineTextAlignment(.leading)
+                        .padding(10)
+            
+                Text("The number Of packets received from received: \(receiveSYN)\nThe number Of packets sent to sender: \(sendSYN)").foregroundColor(.blue)
+                    .multilineTextAlignment(.leading)
+                    .padding(10)
+            }
             Button(action: {
                 DispatchQueue.global().async {
                     launchProxy()
@@ -118,23 +132,28 @@ struct ContentView: View {
                 var buffer = [CChar](repeating: 0, count: bufferSize)
                 setsockopt(fromFD, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout.size(ofValue: timeout)))
                 readBytes = read(fromFD, &buffer, bufferSize)
-                print("received: \(String(cString: buffer))")
+//                print("received: \(String(cString: buffer))")
                 if readBytes > 0 {
                     numberOfReceived += 1.0
+                    DispatchQueue.main.async {
+                        receiveSYN += 1
+                    }
                 }
                 let dropRate = Int.random(in: 1...100)
                 if dropRate <= vm.actualDropDate {
-                    //1 second dealy
                     let writeBytes = write(toFd, buffer, readBytes)
+                    DispatchQueue.main.async {
+                        sendSYN += 1
+                    }
                 } else {
                     numberOfDropped += 1
                 }
                 if readBytes == 0 {
-                    exit(0)
+                    break
                 }
                 DispatchQueue.main.async {
                     vm.realtimeDropRate = numberOfDropped / numberOfReceived * 100
-                    print( vm.realtimeDropRate)
+                    print("SYN DROP RATE: \(vm.realtimeDropRate)")
                     let dropDate = DropPerSec(dopRate: vm.realtimeDropRate, second: second)
                     vm.dropRates.append(dropDate)
                 }
@@ -144,21 +163,25 @@ struct ContentView: View {
                 let askReadBytes = read(toFd, &askBuffer, bufferSize)
                 if askReadBytes > 0 {
                     numberACKOfReceived += 1
-                    print("received: \(String(cString: askBuffer))")
-                    let ackDropRate = Int.random(in: 1...100)
-                    if ackDropRate <= ackVm.actualDropDate {
-                        //3 second dealy
-                        let askWriteBytes = write(fromFD, askBuffer, askReadBytes)
-                        
-                    } else {
-                        numberACKOfDropped += 1.0
-                    }
                     DispatchQueue.main.async {
-                        ackVm.realtimeDropRate = numberACKOfDropped / numberACKOfReceived * 100
-                        
-                        let dropDate = DropPerSec(dopRate: ackVm.realtimeDropRate, second: second)
-                        ackVm.dropRates.append(dropDate)
+                        receivedACK += 1
                     }
+//                    print("received: \(String(cString: askBuffer))")
+                }
+                let ackDropRate = Int.random(in: 1...100)
+                if ackDropRate <= ackVm.actualDropDate {
+                    let askWriteBytes = write(fromFD, askBuffer, askReadBytes)
+                    DispatchQueue.main.async {
+                        sendACK += 1
+                    }
+                } else {
+                    numberACKOfDropped += 1.0
+                }
+                DispatchQueue.main.async {
+                    ackVm.realtimeDropRate = numberACKOfDropped / numberACKOfReceived * 100
+                    print("ACK DROP RATE: \(ackVm.realtimeDropRate)")
+                    let dropDate = DropPerSec(dopRate: ackVm.realtimeDropRate, second: second)
+                    ackVm.dropRates.append(dropDate)
                 }
                
             }
@@ -177,10 +200,8 @@ struct ContentView: View {
         
         let senderIp = argParser.senderIp
         let receiverIp = argParser.receiverIp
-        var counter = 0
         do {
             try socketManger.netWorkSnake(from: senderIp!, to: receiverIp!)
-            var counter = 0
             copyMessage(from: socketManger.serverAcceptFD!, to: socketManger.toSocketFD!)
             
         } catch (let err ) {

@@ -11,7 +11,7 @@ import SwiftUI
 struct Comp7005_ProxyGUIApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
