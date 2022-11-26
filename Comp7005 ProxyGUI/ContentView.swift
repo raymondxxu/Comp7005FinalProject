@@ -194,9 +194,11 @@ struct ContentView: View {
             print(err)
         }
         let portNumber: UInt16 = argParser.portNumber ?? 2222
+        let receiverPortNumber: UInt16 = argParser.receiverPortNumber!
         let socketManger = SocketManager(isForServer: false,
                                          serverIP: "",
-                                         port: portNumber)
+                                         port: portNumber,
+                                         receiverPort: receiverPortNumber)
         
         let senderIp = argParser.senderIp
         let receiverIp = argParser.receiverIp
