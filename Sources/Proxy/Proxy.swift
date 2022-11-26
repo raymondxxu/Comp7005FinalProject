@@ -53,10 +53,8 @@ public struct Proxy {
         
         let senderIp = argParser.senderIp
         let receiverIp = argParser.receiverIp
-        var counter = 0
         do {
-            try socketManger.netWorkSnake(from: senderIp!, to: receiverIp!)
-            var counter = 0
+            try socketManger.netWorkSnake(to: receiverIp!)
             copyMessage(from: socketManger.serverAcceptFD!, to: socketManger.toSocketFD!)
             
         } catch (let err ) {

@@ -200,10 +200,9 @@ struct ContentView: View {
                                          port: portNumber,
                                          receiverPort: receiverPortNumber)
         
-        let senderIp = argParser.senderIp
         let receiverIp = argParser.receiverIp
         do {
-            try socketManger.netWorkSnake(from: senderIp!, to: receiverIp!)
+            try socketManger.netWorkSnake(to: receiverIp!)
             copyMessage(from: socketManger.serverAcceptFD!, to: socketManger.toSocketFD!)
             
         } catch (let err ) {
